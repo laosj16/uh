@@ -1,0 +1,59 @@
+基于我读取的代码，让我为您列出dashboard页面中所有主要元素的名称：
+
+📱 iPhone 15 Pro Max 手机模型元素：
+🔧 手机外壳组件：
+phone-container - 手机外壳容器
+dynamic-island - 动态岛
+phone-screen - 手机屏幕
+📋 App 主要容器：
+app-container - App主容器
+🎯 头部区域 (main-header)：
+header-top - 头部顶栏
+greeting - 问候语 ("你好, 华仔")
+user-avatars - 用户头像区域
+avatar - 用户头像
+menu-container - 菜单容器
+menu-btn - 菜单按钮 (三条线图标)
+menu-dropdown - 下拉菜单
+tabs - 标签导航容器
+tab - 标签按钮 (身体数据/饮食数据/健康工具)
+📊 主内容区域 (app-main)：
+content-area - 内容区域
+tab-content - 标签内容容器
+🏋️ 体重主卡片 (main-metric-card)：
+card-header - 卡片头部
+metric-title - 指标标题
+metric-icon - 指标图标
+date-link - 日期链接 ("06/16 >")
+card-body - 卡片主体
+metric-value-large - 大数值显示
+value - 数值 ("81.3")
+unit - 单位 ("kg")
+chart-placeholder-large - 大图表占位符
+weight-chart - 体重趋势图
+card-footer-actions - 卡片底部操作区
+action-item - 操作项 (全部记录/测量结果/数据详情/测量报告)
+📈 其他数据卡片：
+data-card - 数据卡片 (体脂率/肌肉量/内脏脂肪/水分率/身体年龄/BMR)
+chart-placeholder-small - 小图表占位符
+body-fat-chart - 体脂率图表
+muscle-chart - 肌肉量图表
+visceral-fat-chart - 内脏脂肪图表
+water-chart - 水分率图表
+body-age-chart - 身体年龄图表
+bmr-chart - BMR图表
+🔽 底部导航 (bottom-nav)：
+nav-item - 导航项
+nav-item-add - 添加按钮 (中间的+号)
+🎭 弹窗和遮罩：
+loading-overlay - 加载遮罩
+modal-overlay - 弹窗遮罩
+device-modal - 设备选择弹窗
+modal-content - 弹窗内容
+device-list - 设备列表
+device-item - 设备项
+connect-btn - 连接按钮
+close-modal-btn - 关闭弹窗按钮
+📑 其他标签内容：
+diet-data - 饮食数据标签内容
+health-tools - 健康工具标签内容

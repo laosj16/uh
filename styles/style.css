@@ -1,0 +1,1191 @@
+/* 
+ * 智能秤 App 原型样式表
+ * 版本: 3.1.0
+ * 作者: Gemini
+ * 规范: 严格遵守项目文档要求，所有注释使用简体中文。
+ * 变更:
+ * - 实现固定头部和底部导航栏，内容区域可滚动。
+ * - 为卡片添加趋势图占位符样式。
+*/
+
+/* --- CSS 变量定义 --- */
+:root {
+    --primary-color: #007AFF;      /* 主色调: 蓝色 */
+    --bg-primary: #FFFFFF;         /* 主背景色: 白色 */
+    --bg-secondary: #F0F3F8;       /* 次级背景色: 极浅蓝灰色 */
+    --text-primary: #1D1D1F;       /* 主要文本色: 深灰色 */
+    --text-secondary: #8A8A8E;     /* 次要文本色: 中度灰色 */
+    --text-light: #FFFFFF;         /* 亮色文本: 白色 */
+    --card-shadow: 0 8px 24px rgba(0,0,0,0.08); /* 卡片阴影 */
+    --border-radius: 20px;         /* 全局圆角 */
+}
+
+/* --- 全局重置和基础设定 --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden; /* 防止 body 滚动 */
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    display: flex;
+    justify-content: center;
+}
+
+/* --- 容器样式 --- */
+.app-container {
+    width: 100%;
+    max-width: 430px;
+    min-width: 375px;
+    height: 100%;
+    background-color: var(--bg-secondary);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* 隐藏容器的滚动条 */
+}
+
+/* --- 新的头部区域 --- */
+.main-header {
+    padding: 50px 20px 0 20px;
+    background: linear-gradient(135deg, #66A6FF 0%, #89F7FE 100%);
+    color: var(--text-light);
+    border-bottom-left-radius: 30px;
+    border-bottom-right-radius: 30px;
+    position: fixed; /* 固定头部 */
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 430px;
+    z-index: 10;
+}
+
+.header-top {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.greeting {
+    font-size: 28px;
+    font-weight: 700;
+    text-align: left;
+}
+
+.user-avatars {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.5);
+}
+
+.avatar.active {
+    border-color: var(--bg-primary);
+    transform: scale(1.1);
+}
+
+.menu-btn {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+}
+
+.menu-container {
+    position: absolute;
+    top: 50px;
+    right: 20px;
+}
+
+.menu-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+.menu-dropdown {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    background-color: var(--bg-primary);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    width: 150px;
+    overflow: hidden;
+    z-index: 20;
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.menu-dropdown.hidden {
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+}
+
+.menu-dropdown ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu-dropdown li a {
+    display: block;
+    padding: 12px 15px;
+    text-decoration: none;
+    color: var(--text-primary);
+    font-size: 16px;
+}
+
+.menu-dropdown li a:hover {
+    background-color: var(--bg-secondary);
+}
+
+/* --- 选项卡样式 --- */
+.tabs {
+    display: flex;
+    gap: 20px;
+    margin-top: 10px;
+    justify-content: flex-start;
+}
+
+.tab {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.7);
+    font-size: 17px;
+    font-weight: 600;
+    padding: 10px 5px;
+    position: relative;
+    cursor: pointer;
+}
+
+.tab.active {
+    color: var(--text-light);
+}
+
+.tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    background-color: var(--text-light);
+    border-radius: 50%;
+}
+
+/* --- 主要内容区域 --- */
+.content-area {
+    padding: 20px;
+    flex-grow: 1;
+    overflow-y: auto; /* 使内容区域可滚动 */
+    padding-top: 230px; /* 调整为合适的间距，与卡片间距保持一致 */
+    padding-bottom: 100px; /* 留出固定导航栏空间 */
+}
+
+/* --- 新的卡片样式 --- */
+.card {
+    background-color: var(--bg-primary);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--card-shadow);
+}
+
+.data-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.metric-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.metric-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.metric-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.metric-title h3 {
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.date-link, .more-btn {
+    font-size: 14px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    line-height: 1;
+}
+
+.card-body {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.metric-value-large .value {
+    font-size: 36px;
+    font-weight: 700;
+}
+
+.metric-value-large .unit {
+    font-size: 18px;
+    color: var(--text-secondary);
+    margin-left: 4px;
+}
+
+.chart-placeholder-large, .chart-placeholder-small {
+    border-radius: 8px;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
+.chart-placeholder-large {
+    width: 160px;
+    height: 80px;
+}
+
+.chart-placeholder-small {
+    width: 120px;
+    height: 60px;
+}
+
+/* 体重卡片曲线 - 青绿色，微上升趋势 */
+.weight-chart {
+    background-image: url('data:image/svg+xml;utf8,<svg width="160" height="80" viewBox="0 0 160 80" xmlns="http://www.w3.org/2000/svg"><path d="M10 65 Q 55 55, 80 45 Q 105 35, 150 30" stroke="%231ABC9C" fill="none" stroke-width="3.5" stroke-linecap="round"/><circle cx="10" cy="65" r="3" fill="%231ABC9C"/><circle cx="80" cy="45" r="3" fill="%231ABC9C"/><circle cx="150" cy="30" r="3" fill="%231ABC9C"/></svg>');
+}
+
+/* 体脂率卡片曲线 - 粉色，轻微波动 */
+.body-fat-chart {
+    background-image: url('data:image/svg+xml;utf8,<svg width="120" height="60" viewBox="0 0 120 60" xmlns="http://www.w3.org/2000/svg"><path d="M8 35 Q 40 28, 60 32 Q 80 36, 112 25" stroke="%23E91E63" fill="none" stroke-width="3" stroke-linecap="round"/><circle cx="8" cy="35" r="2.5" fill="%23E91E63"/><circle cx="60" cy="32" r="2.5" fill="%23E91E63"/><circle cx="112" cy="25" r="2.5" fill="%23E91E63"/></svg>');
+}
+
+/* 肌肉量卡片曲线 - 橙色，稳步上升 */
+.muscle-chart {
+    background-image: url('data:image/svg+xml;utf8,<svg width="120" height="60" viewBox="0 0 120 60" xmlns="http://www.w3.org/2000/svg"><path d="M8 45 Q 40 38, 60 30 Q 80 22, 112 18" stroke="%23FF9800" fill="none" stroke-width="3" stroke-linecap="round"/><circle cx="8" cy="45" r="2.5" fill="%23FF9800"/><circle cx="60" cy="30" r="2.5" fill="%23FF9800"/><circle cx="112" cy="18" r="2.5" fill="%23FF9800"/></svg>');
+}
+
+/* 内脏脂肪卡片曲线 - 青色，下降趋势 */
+.visceral-fat-chart {
+    background-image: url('data:image/svg+xml;utf8,<svg width="120" height="60" viewBox="0 0 120 60" xmlns="http://www.w3.org/2000/svg"><path d="M8 22 Q 40 26, 60 32 Q 80 38, 112 42" stroke="%23009688" fill="none" stroke-width="3" stroke-linecap="round"/><circle cx="8" cy="22" r="2.5" fill="%23009688"/><circle cx="60" cy="32" r="2.5" fill="%23009688"/><circle cx="112" cy="42" r="2.5" fill="%23009688"/></svg>');
+}
+
+/* 水分率卡片曲线 - 蓝色，稳定趋势 */
+.water-chart {
+    background-image: url('data:image/svg+xml;utf8,<svg width="120" height="60" viewBox="0 0 120 60" xmlns="http://www.w3.org/2000/svg"><path d="M8 32 Q 40 28, 60 31 Q 80 34, 112 27" stroke="%232196F3" fill="none" stroke-width="3" stroke-linecap="round"/><circle cx="8" cy="32" r="2.5" fill="%232196F3"/><circle cx="60" cy="31" r="2.5" fill="%232196F3"/><circle cx="112" cy="27" r="2.5" fill="%232196F3"/></svg>');
+}
+
+/* 身体年龄卡片曲线 - 紫色，改善趋势 */
+.body-age-chart {
+    background-image: url('data:image/svg+xml;utf8,<svg width="120" height="60" viewBox="0 0 120 60" xmlns="http://www.w3.org/2000/svg"><path d="M8 42 Q 40 37, 60 32 Q 80 27, 112 22" stroke="%239C27B0" fill="none" stroke-width="3" stroke-linecap="round"/><circle cx="8" cy="42" r="2.5" fill="%239C27B0"/><circle cx="60" cy="32" r="2.5" fill="%239C27B0"/><circle cx="112" cy="22" r="2.5" fill="%239C27B0"/></svg>');
+}
+
+/* BMR卡片曲线 - 靛蓝色，稳步提升 */
+.bmr-chart {
+    background-image: url('data:image/svg+xml;utf8,<svg width="120" height="60" viewBox="0 0 120 60" xmlns="http://www.w3.org/2000/svg"><path d="M8 48 Q 40 42, 60 36 Q 80 30, 112 26" stroke="%233F51B5" fill="none" stroke-width="3" stroke-linecap="round"/><circle cx="8" cy="48" r="2.5" fill="%233F51B5"/><circle cx="60" cy="36" r="2.5" fill="%233F51B5"/><circle cx="112" cy="26" r="2.5" fill="%233F51B5"/></svg>');
+}
+
+.card-footer-actions {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid var(--bg-secondary);
+}
+
+.action-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+
+.action-item svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+}
+
+/* --- 底部导航栏 --- */
+.bottom-nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    position: fixed; /* 固定导航栏 */
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 430px;
+    background-color: var(--bg-primary);
+    height: 84px;
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+    z-index: 10;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+
+.nav-item svg {
+    width: 28px;
+    height: 28px;
+    margin-bottom: 4px;
+    fill: currentColor;
+}
+
+.nav-item.active {
+    color: var(--primary-color);
+}
+
+.nav-item-add {
+    width: 60px;
+    height: 60px;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: translateY(-25px);
+    box-shadow: 0 6px 15px rgba(0, 122, 255, 0.4);
+}
+
+.nav-item-add svg {
+    width: 32px;
+    height: 32px;
+    margin: 0;
+}
+
+/* 加载动画样式 */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.loading-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid #FFFFFF;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-overlay p {
+    color: #FFFFFF;
+    font-size: 16px;
+    margin: 0;
+}
+
+/* --- 全部记录页面样式 --- */
+#page-records .app-container {
+    background-color: var(--bg-secondary);
+}
+
+.records-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 50px 20px 20px 20px;
+    background-color: var(--bg-primary);
+    border-bottom: 1px solid #E5E5E7;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 430px;
+    z-index: 10;
+    margin: 0 auto;
+}
+
+.records-header .title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.back-btn, .share-btn {
+    width: 44px;
+    height: 44px;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-primary);
+}
+
+.back-btn:hover, .share-btn:hover {
+    background-color: var(--bg-secondary);
+}
+
+.back-btn svg, .share-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+.records-main {
+    padding: 120px 20px 20px 20px;
+}
+
+/* 筛选区域 */
+.filters-section {
+    margin-bottom: 20px;
+    margin-top: 10px;
+}
+
+.user-selector {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    background-color: var(--bg-primary);
+    border-radius: 12px;
+    margin-bottom: 15px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: var(--bg-secondary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+}
+
+.user-avatar svg {
+    width: 24px;
+    height: 24px;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.user-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.2;
+}
+
+.dropdown-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0;
+}
+
+.dropdown-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.device-filter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    background-color: var(--bg-primary);
+    border-radius: 12px;
+}
+
+.filter-label {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+/* 记录列表 */
+.records-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.date-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.date-header {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    padding-left: 4px;
+}
+
+.record-item {
+    background-color: var(--bg-primary);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.record-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.device-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.device-icon {
+    width: 32px;
+    height: 32px;
+    background-color: #F0F3F8;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+}
+
+.device-icon.dark {
+    background-color: #2C2C2E;
+    color: #FFFFFF;
+}
+
+.device-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+.device-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.device-name {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.record-time {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.2;
+}
+
+.report-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+.report-btn:hover {
+    background-color: #0056D6;
+    color: white;
+    text-decoration: none;
+}
+
+.record-data {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.data-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+}
+
+.data-value {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.2;
+    margin-bottom: 4px;
+}
+
+.data-value .unit {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    margin-left: 2px;
+}
+
+.data-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.2;
+}
+
+/* 更新弹窗样式以适应新设计 */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end; /* 底部对齐 */
+    z-index: 200;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background-color: var(--bg-primary);
+    width: 100%;
+    max-width: 430px;
+    padding: 20px;
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.show .modal-content {
+    transform: translateY(0);
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.device-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.device-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 15px;
+    border: none;
+    background: none;
+    text-align: left;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+.device-item:hover {
+    background-color: var(--bg-secondary);
+}
+
+.device-item img {
+    width: 50px;
+    height: 50px;
+    margin-right: 15px;
+}
+
+.device-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.device-name {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.device-model {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.close-modal-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: var(--bg-secondary);
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px auto 0 auto;
+    cursor: pointer;
+}
+
+.close-modal-btn svg {
+    width: 24px;
+    height: 24px;
+    fill: var(--text-secondary);
+}
+
+/* ========================
+   测量结果页面样式
+   ======================== */
+
+/* 结果页面头部 */
+.results-header {
+    background: #ffffff;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    position: relative;
+}
+
+.results-header .back-btn {
+    background: none;
+    border: none;
+    color: #333;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.results-header .back-btn:hover {
+    background: #f0f0f0;
+}
+
+.results-header .back-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.results-header .title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+}
+
+.results-header .header-spacer {
+    width: 36px;
+}
+
+/* 结果页面主体 */
+.results-main {
+    padding: 20px;
+    padding-top: 80px;
+    background: #f8f9fa;
+    min-height: 100vh;
+}
+
+/* 用户信息区域 */
+.user-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 30px;
+    justify-content: center;
+}
+
+.user-avatar {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+}
+
+.user-avatar svg {
+    width: 28px;
+    height: 28px;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.user-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 2px;
+}
+
+.measure-time {
+    font-size: 14px;
+    color: #999;
+}
+
+/* 体重圆环图容器 */
+.weight-circle-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.weight-circle {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.circle-svg {
+    display: block;
+}
+
+.weight-display {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.weight-value {
+    display: block;
+    font-size: 36px;
+    font-weight: 700;
+    color: #333;
+    line-height: 1;
+    margin-bottom: 2px;
+}
+
+.weight-unit {
+    display: block;
+    font-size: 14px;
+    color: #999;
+    margin-bottom: 8px;
+}
+
+.weight-status {
+    display: block;
+    font-size: 16px;
+    font-weight: 600;
+    color: #00D2AA;
+}
+
+/* 图例 */
+.legend {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.legend-dot.low {
+    background: #FF9500;
+}
+
+.legend-dot.normal {
+    background: #00D2AA;
+}
+
+.legend-dot.high {
+    background: #FF453A;
+}
+
+.legend-text {
+    font-size: 14px;
+    color: #666;
+}
+
+/* 分析解读区域 */
+.analysis-section {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.analysis-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 12px 0;
+}
+
+.analysis-text {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* 测量报告按钮 */
+.measurement-report-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 15px 0;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 30px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.measurement-report-btn:hover {
+    transform: scale(1.02);
+}
+
+.measurement-report-btn:active {
+    transform: scale(0.98);
+}
+
+/* 健康指标网格 */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.metric-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.metric-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.metric-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+}
+
+.metric-icon.bmi {
+    background: #A855F7;
+}
+
+.metric-icon.body-fat {
+    background: #EC4899;
+}
+
+.metric-icon.water {
+    background: #06B6D4;
+}
+
+.metric-icon.muscle {
+    background: #F97316;
+}
+
+.metric-icon.visceral {
+    background: #EF4444;
+}
+
+.metric-icon.bmr {
+    background: #3B82F6;
+}
+
+.metric-icon.lean-mass {
+    background: #8B5CF6;
+}
+
+.metric-icon.bone {
+    background: #EF4444;
+}
+
+.metric-icon.protein {
+    background: #10B981;
+}
+
+.metric-icon.subcutaneous {
+    background: #F59E0B;
+}
+
+.metric-icon.skeletal {
+    background: #3B82F6;
+}
+
+.metric-icon.body-age {
+    background: #10B981;
+}
+
+.metric-icon.metabolism {
+    background: #10B981;
+}
+
+.metric-icon svg {
+    width: 12px;
+    height: 12px;
+}
+
+.metric-name {
+    font-size: 12px;
+    color: #666;
+    font-weight: 400;
+}
+
+.metric-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #333;
+    line-height: 1;
+}
+
+.metric-value .unit {
+    font-size: 14px;
+    font-weight: 400;
+    color: #999;
+}
+
+.metric-status {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.metric-status.normal {
+    color: #00D2AA;
+}
+
+.metric-status.high {
+    color: #FF453A;
+}
+
+.metric-status.low {
+    color: #FF9500;
+}

@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>智能秤 Dashboard</title>
+    <link rel="stylesheet" href="styles/style.css">
+    <style>
+        /* iPhone 15 Pro Max 模型样式 */
+        * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .phone-container {
+            width: 430px;
+            height: 932px;
+            background: #1c1c1e;
+            border-radius: 55px;
+            padding: 8px;
+            box-shadow: 
+                0 0 0 2px #2c2c2e,
+                0 20px 60px rgba(0, 0, 0, 0.4),
+                inset 0 2px 4px rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .phone-screen {
+            width: 414px;
+            height: 916px;
+            background: #000;
+            border-radius: 47px;
+            overflow: hidden;
+            position: relative;
+            touch-action: manipulation;
+        }
+
+        /* 动态岛 */
+        .dynamic-island {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 126px;
+            height: 37px;
+            background: #000;
+            border-radius: 19px;
+            z-index: 1000;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        /* iPhone 状态栏 */
+        .status-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 54px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 17px 33px 10px 33px;
+            z-index: 1001;
+            color: #000;
+            font-size: 17px;
+            font-weight: 600;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .status-left {
+            display: flex;
+            align-items: center;
+            font-weight: 700;
+        }
+
+        .status-right {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            height: 17px;
+        }
+
+        /* 苹果官方信号图标 */
+        .signal-bars {
+            width: 18px;
+            height: 12px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+        }
+
+        .signal-bars svg {
+            width: 18px;
+            height: 12px;
+        }
+
+        /* 苹果官方WiFi图标 */
+        .wifi-icon {
+            width: 17px;
+            height: 17px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .wifi-icon svg {
+            width: 17px;
+            height: 17px;
+        }
+
+        /* 苹果官方电池图标 */
+        .battery {
+            display: flex;
+            align-items: center;
+        }
+
+        .battery-icon {
+            width: 27px;
+            height: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .battery-icon svg {
+            width: 27px;
+            height: 13px;
+        }
+
+        /* 重写App容器样式以完全适配手机屏幕 */
+        .phone-screen .app-container {
+            width: 100%;
+            height: 100%;
+            background: var(--bg-secondary);
+            border-radius: 0;
+            margin: 0;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 调整头部以避开动态岛 */
+        .phone-screen .app-header,
+        .phone-screen .main-header {
+            position: relative !important;
+            padding-top: 70px !important;
+            padding-left: 20px !important;
+            padding-right: 20px !important;
+            padding-bottom: 20px !important;
+            height: auto !important;
+            min-height: 120px;
+            flex-shrink: 0;
+            z-index: 10;
+            /* 恢复原始背景样式 */
+            background: linear-gradient(135deg, #66A6FF 0%, #89F7FE 100%) !important;
+            color: white !important;
+            border-bottom-left-radius: 30px !important;
+            border-bottom-right-radius: 30px !important;
+            width: 100% !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            max-width: none !important;
+        }
+
+        /* 主内容区域 */
+        .phone-screen .app-main,
+        .phone-screen .content-area {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 20px 20px 100px 20px !important;
+            margin-top: 0 !important;
+            -webkit-overflow-scrolling: touch;
+            position: relative !important;
+        }
+
+        /* 隐藏滚动条但保持滚动功能 */
+        .phone-screen .app-main::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* 底部导航栏 */
+        .phone-screen .bottom-nav,
+        .phone-screen .app-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: white;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+            padding-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        /* 触摸反馈效果 */
+        .phone-screen .nav-item,
+        .phone-screen .action-item,
+        .phone-screen .card,
+        .phone-screen button,
+        .phone-screen a {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .phone-screen .nav-item:active,
+        .phone-screen .action-item:active,
+        .phone-screen .card:active,
+        .phone-screen button:active,
+        .phone-screen a:active {
+            transform: scale(0.95);
+            opacity: 0.8;
+        }
+
+        /* 弹窗和遮罩层适配 */
+        .phone-screen .modal-overlay,
+        .phone-screen .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
+        }
+
+        /* iPhone手机模型菜单下拉框优化 */
+        .phone-screen .menu-dropdown {
+            z-index: 1500 !important; /* 确保菜单在iPhone容器之上 */
+            position: absolute !important;
+            top: 40px !important;
+            right: 0 !important;
+            width: 150px !important;
+            min-width: 150px !important;
+            max-width: 150px !important;
+            background-color: white !important;
+            border-radius: 10px !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+            overflow: visible !important;
+            transform: none !important;
+            opacity: 1 !important;
+        }
+
+        .phone-screen .menu-dropdown.hidden {
+            opacity: 0 !important;
+            transform: translateY(-10px) !important;
+            pointer-events: none !important;
+        }
+
+        .phone-screen .menu-dropdown ul {
+            list-style: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            width: 100% !important;
+        }
+
+        .phone-screen .menu-dropdown li {
+            width: 100% !important;
+        }
+
+        .phone-screen .menu-dropdown li a {
+            display: block !important;
+            padding: 12px 15px !important;
+            text-decoration: none !important;
+            color: #1D1D1F !important;
+            font-size: 14px !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            white-space: nowrap !important;
+        }
+
+        .phone-screen .menu-dropdown li a:hover {
+            background-color: #F0F3F8 !important;
+        }
+
+        .phone-screen .menu-container {
+            position: absolute !important;
+            top: 50px !important;
+            right: 20px !important;
+        }
+
+        /* 确保所有内容都在屏幕内 */
+        .phone-screen * {
+            box-sizing: border-box;
+        }
+
+        /* 防止任何元素溢出手机屏幕 */
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .phone-container * {
+            max-width: 100%;
+        }
+
+        /* 强制所有固定定位元素在手机屏幕内 */
+        .phone-screen {
+            contain: layout style paint;
+        }
+
+        /* 只针对特定元素进行定位调整，不影响整体布局 */
+        .phone-screen .app-header {
+            position: relative !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+        }
+
+        .phone-screen .bottom-nav,
+        .phone-screen .app-footer {
+            position: absolute !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+        }
+
+        .phone-screen .modal-overlay,
+        .phone-screen .loading-overlay {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* 保持原有的flex布局和其他样式 */
+        .phone-screen .user-profile {
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+        }
+
+        .phone-screen .quick-actions {
+            display: flex !important;
+            justify-content: space-between !important;
+            gap: 10px !important;
+            margin: 20px 0 !important;
+        }
+
+        .phone-screen .tab-nav {
+            display: flex !important;
+            background: rgba(255, 255, 255, 0.9) !important;
+            border-radius: 25px !important;
+            padding: 4px !important;
+            margin-bottom: 20px !important;
+        }
+
+        .phone-screen .data-grid {
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 15px !important;
+        }
+    </style>
+</head>
+<body id="page-dashboard">
+
+    <!-- iPhone 15 Pro Max 手机模型 -->
+    <div class="phone-container">
+        <!-- 动态岛 -->
+        <div class="dynamic-island"></div>
+        
+        <!-- iPhone 状态栏 -->
+        <div class="status-bar">
+            <div class="status-left">
+                <span class="time">9:41</span>
+            </div>
+            <div class="status-right">
+                <!-- 苹果官方信号强度图标 -->
+                <div class="signal-bars">
+                    <svg viewBox="0 0 18 12" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="2" cy="10" r="1.5" fill="black"/>
+                        <circle cx="6" cy="8.5" r="1.5" fill="black"/>
+                        <circle cx="10" cy="7" r="1.5" fill="black"/>
+                        <circle cx="14" cy="5.5" r="1.5" fill="black"/>
+                        <rect x="0.5" y="9" width="3" height="2" rx="1.5" fill="black"/>
+                        <rect x="4.5" y="7.5" width="3" height="3.5" rx="1.5" fill="black"/>
+                        <rect x="8.5" y="6" width="3" height="5" rx="1.5" fill="black"/>
+                        <rect x="12.5" y="4.5" width="3" height="6.5" rx="1.5" fill="black"/>
+                    </svg>
+                </div>
+                <!-- 苹果官方WiFi图标 -->
+                <div class="wifi-icon">
+                    <svg viewBox="0 0 17 17" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1.5 6.5c3.5-3.5 9.5-3.5 13 0l-1.5 1.5c-2.5-2.5-6.5-2.5-9 0L1.5 6.5z" fill="black"/>
+                        <path d="M4 9c2-2 5-2 7 0L9.5 10.5c-1-1-2.5-1-3.5 0L4 9z" fill="black"/>
+                        <circle cx="8" cy="13" r="1.5" fill="black"/>
+                    </svg>
+                </div>
+                <!-- 苹果官方电池图标 -->
+                <div class="battery">
+                    <div class="battery-icon">
+                        <svg viewBox="0 0 27 13" xmlns="http://www.w3.org/2000/svg">
+                            <!-- 电池外框 -->
+                            <rect x="1" y="2" width="22" height="9" rx="2.5" ry="2.5" fill="none" stroke="black" stroke-width="1"/>
+                            <!-- 电池正极 -->
+                            <rect x="24" y="5" width="2" height="3" rx="1" ry="1" fill="black"/>
+                            <!-- 电池电量 (80%) -->
+                            <rect x="2" y="3" width="17.6" height="7" rx="1.5" ry="1.5" fill="black"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 手机屏幕 -->
+        <div class="phone-screen">
+            
+            <!-- App 容器 -->
+            <div class="app-container">
+
+        <!-- 新的头部区域 -->
+        <header class="main-header">
+            <div class="header-top">
+                <h1 class="greeting">你好, 华仔</h1>
+                <div class="user-avatars">
+                    <!-- 只显示当前用户的头像 -->
+                    <div class="avatar active"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
+                </div>
+                <div class="menu-container">
+                    <button id="menu-button" class="menu-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </button>
+                    <div id="menu-dropdown" class="menu-dropdown hidden">
+                        <ul>
+                            <li><a href="#">添加设备</a></li>
+                            <li><a href="#">扫一扫</a></li>
+                            <li><a href="#">设备管理</a></li>
+                            <li><a href="#">成员管理</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- 选项卡导航 -->
+            <div class="tabs">
+                <button class="tab active" data-tab="body-data">身体数据</button>
+                <button class="tab" data-tab="diet-data">饮食数据</button>
+                <button class="tab" data-tab="health-tools">健康工具</button>
+            </div>
+        </header>
+
+        <!-- 主要内容区域 -->
+        <main class="app-main content-area">
+
+            <!-- 身体数据选项卡内容 -->
+            <div class="tab-content active" id="body-data">
+                <!-- 体重卡片 -->
+                <div class="card data-card main-metric-card">
+                    <div class="card-header">
+                        <div class="metric-title">
+                            <div class="metric-icon" style="background-color: #E0F8F2;">
+                                <svg viewBox="0 0 24 24" fill="#1ABC9C"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 14H7v-4h4v4zm0-6H7V7h4v4zm6 6h-4v-4h4v4zm0-6h-4V7h4v4z"/></svg>
+                            </div>
+                            <h3>体重</h3>
+                        </div>
+                        <a href="#" class="date-link">06/16 ></a>
+                    </div>
+                    <div class="card-body">
+                        <div class="metric-value-large">
+                            <span class="value">81.3</span><span class="unit">kg</span>
+                        </div>
+                        <div class="chart-placeholder-large weight-chart">
+                            <!-- 体重趋势图 -->
+                        </div>
+                    </div>
+                    <div class="card-footer-actions">
+                        <a href="records.html" class="action-item">
+                            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+                            <span>全部记录</span>
+                        </a>
+                        <a href="results.html?from=dashboard" class="action-item">
+                            <svg viewBox="0 0 24 24"><path d="M15 1H9v2h6V1zm-4 13h2V8h-2v6zm8.03-6.61l1.42-1.42c-.43-.51-.9-.98-1.41-1.41l-1.42 1.42C16.07 4.74 14.12 4 12 4c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-2.12-.74-4.07-1.97-5.61zM12 20c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
+                            <span>测量结果</span>
+                        </a>
+                        <a href="#" class="action-item">
+                            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 16H6v-4h12v4zm0-6H6v-4h12v4zm0-6H6V5h12v2z"/></svg>
+                            <span>数据详情</span>
+                        </a>
+                        <a href="#" class="action-item">
+                            <svg viewBox="0 0 24 24"><path d="M14.47 15.53L11 12.06l-3.47 3.47-1.06-1.06L9.94 11 6.47 7.53l1.06-1.06L11 9.94l3.47-3.47 1.06 1.06L12.06 11l3.47 3.47-1.06 1.06zM19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg>
+                            <span>测量报告</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 其他指标卡片 -->
+                <div class="card data-card">
+                    <div class="card-header">
+                        <div class="metric-title">
+                            <div class="metric-icon" style="background-color: #FCE4EC;"><svg viewBox="0 0 24 24" fill="#E91E63"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg></div>
+                            <h3>体脂率</h3>
+                        </div>
+                        <button class="more-btn">...</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="metric-value-large">
+                            <span class="value">22.9</span><span class="unit">%</span>
+                        </div>
+                        <div class="chart-placeholder-small body-fat-chart"></div>
+                    </div>
+                </div>
+                
+                <div class="card data-card">
+                    <div class="card-header">
+                        <div class="metric-title">
+                            <div class="metric-icon" style="background-color: #FFECB3;"><svg viewBox="0 0 24 24" fill="#FF9800"><path d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v1.5c-1.93 0-3.5 1.57-3.5 3.5S9.57 19.5 11.5 19.5h5c1.93 0 3.5-1.57 3.5-3.5V11zM17 7h-4V5h4v2z"/></svg></div>
+                            <h3>肌肉量</h3>
+                        </div>
+                        <button class="more-btn">...</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="metric-value-large">
+                            <span class="value">21.4</span><span class="unit">kg</span>
+                        </div>
+                        <div class="chart-placeholder-small muscle-chart"></div>
+                    </div>
+                </div>
+
+                <div class="card data-card">
+                    <div class="card-header">
+                        <div class="metric-title">
+                            <div class="metric-icon" style="background-color: #E0F2F1;"><svg viewBox="0 0 24 24" fill="#009688"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg></div>
+                            <h3>内脏脂肪</h3>
+                        </div>
+                        <button class="more-btn">...</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="metric-value-large">
+                            <span class="value">9</span><span class="unit">级</span>
+                        </div>
+                        <div class="chart-placeholder-small visceral-fat-chart"></div>
+                    </div>
+                </div>
+
+                <div class="card data-card">
+                    <div class="card-header">
+                        <div class="metric-title">
+                            <div class="metric-icon" style="background-color: #E3F2FD;"><svg viewBox="0 0 24 24" fill="#2196F3"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg></div>
+                            <h3>水分率</h3>
+                        </div>
+                        <button class="more-btn">...</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="metric-value-large">
+                            <span class="value">55.0</span><span class="unit">%</span>
+                        </div>
+                        <div class="chart-placeholder-small water-chart"></div>
+                    </div>
+                </div>
+
+                <div class="card data-card">
+                    <div class="card-header">
+                        <div class="metric-title">
+                            <div class="metric-icon" style="background-color: #F3E5F5;"><svg viewBox="0 0 24 24" fill="#9C27B0"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg></div>
+                            <h3>身体年龄</h3>
+                        </div>
+                        <button class="more-btn">...</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="metric-value-large">
+                            <span class="value">28</span><span class="unit">岁</span>
+                        </div>
+                        <div class="chart-placeholder-small body-age-chart"></div>
+                    </div>
+                </div>
+
+                <div class="card data-card">
+                    <div class="card-header">
+                        <div class="metric-title">
+                            <div class="metric-icon" style="background-color: #E8EAF6;"><svg viewBox="0 0 24 24" fill="#3F51B5"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg></div>
+                            <h3>BMR</h3>
+                        </div>
+                        <button class="more-btn">...</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="metric-value-large">
+                            <span class="value">1650</span><span class="unit">kcal</span>
+                        </div>
+                        <div class="chart-placeholder-small bmr-chart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 饮食数据选项卡内容 (暂时隐藏) -->
+            <div class="tab-content" id="diet-data">
+                <!-- 保持原有内容 -->
+            </div>
+
+            <!-- 健康工具选项卡内容 (暂时隐藏) -->
+            <div class="tab-content" id="health-tools">
+                <!-- 保持原有内容 -->
+            </div>
+
+        </main>
+
+        <!-- 新的底部导航栏 -->
+        <nav class="bottom-nav">
+            <a href="dashboard.html" class="nav-item active">
+                <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+                <span>看板</span>
+            </a>
+            <a href="#" id="measure-button" class="nav-item nav-item-add">
+                <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                <span>我的</span>
+            </a>
+        </nav>
+
+        <!-- 测量和设备选择弹窗等保持不变 -->
+        <div id="loadingOverlay" class="loading-overlay"></div>
+        <div id="deviceModal" class="modal-overlay">
+            <div class="modal-content">
+                <h3>选择设备</h3>
+                <div class="device-list">
+                    <div class="device-item">
+                        <div class="device-info">
+                            <span class="device-name">智能体脂秤 Pro</span>
+                            <span class="device-model">WS-2023</span>
+                        </div>
+                        <button class="connect-btn">连接</button>
+                    </div>
+                    <div class="device-item">
+                        <div class="device-info">
+                            <span class="device-name">健康秤 Max</span>
+                            <span class="device-model">HS-2024</span>
+                        </div>
+                        <button class="connect-btn">连接</button>
+                    </div>
+                </div>
+                <button class="close-modal-btn">
+                    <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+        </div>
+
+        </div> <!-- App 容器结束 -->
+            
+        </div> <!-- 手机屏幕结束 -->
+    </div> <!-- 手机容器结束 -->
+
+    <script src="scripts/script.js"></script>
+    
+    <script>
+        // 实时更新iPhone状态栏时间
+        function updateStatusBarTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour12: false, 
+                hour: 'numeric', 
+                minute: '2-digit' 
+            });
+            const timeElement = document.querySelector('.status-bar .time');
+            if (timeElement) {
+                timeElement.textContent = timeString;
+            }
+        }
+        
+        // 页面加载时立即更新时间
+        updateStatusBarTime();
+        
+        // 每分钟更新一次时间
+        setInterval(updateStatusBarTime, 60000);
+
+        // 触摸滑动模拟
+        class TouchSimulator {
+            constructor() {
+                this.isMouseDown = false;
+                this.startX = 0;
+                this.startY = 0;
+                this.currentX = 0;
+                this.currentY = 0;
+                this.scrollElement = null;
+                this.init();
+            }
+
+            init() {
+                const phoneScreen = document.querySelector('.phone-screen');
+                const appMain = document.querySelector('.app-main');
+                
+                if (phoneScreen && appMain) {
+                    this.scrollElement = appMain;
+                    this.addEventListeners(phoneScreen);
+                }
+            }
+
+            addEventListeners(element) {
+                // 鼠标事件
+                element.addEventListener('mousedown', (e) => this.handleStart(e));
+                element.addEventListener('mousemove', (e) => this.handleMove(e));
+                element.addEventListener('mouseup', (e) => this.handleEnd(e));
+                element.addEventListener('mouseleave', (e) => this.handleEnd(e));
+
+                // 触摸事件（真实触摸设备）
+                element.addEventListener('touchstart', (e) => this.handleStart(e));
+                element.addEventListener('touchmove', (e) => this.handleMove(e));
+                element.addEventListener('touchend', (e) => this.handleEnd(e));
+
+                // 防止默认的拖拽行为
+                element.addEventListener('dragstart', (e) => e.preventDefault());
+            }
+
+            handleStart(e) {
+                this.isMouseDown = true;
+                
+                if (e.type === 'mousedown') {
+                    this.startX = e.clientX;
+                    this.startY = e.clientY;
+                } else {
+                    this.startX = e.touches[0].clientX;
+                    this.startY = e.touches[0].clientY;
+                }
+                
+                this.currentX = this.startX;
+                this.currentY = this.startY;
+                
+                // 添加拖拽样式
+                document.body.style.userSelect = 'none';
+                e.preventDefault();
+            }
+
+            handleMove(e) {
+                if (!this.isMouseDown) return;
+
+                let newX, newY;
+                if (e.type === 'mousemove') {
+                    newX = e.clientX;
+                    newY = e.clientY;
+                } else {
+                    newX = e.touches[0].clientX;
+                    newY = e.touches[0].clientY;
+                }
+
+                const deltaX = newX - this.currentX;
+                const deltaY = newY - this.currentY;
+
+                // 实现滚动
+                if (this.scrollElement) {
+                    this.scrollElement.scrollBy(0, -deltaY);
+                }
+
+                this.currentX = newX;
+                this.currentY = newY;
+
+                e.preventDefault();
+            }
+
+            handleEnd(e) {
+                this.isMouseDown = false;
+                document.body.style.userSelect = '';
+                
+                // 添加惯性滚动效果
+                const totalDeltaY = this.currentY - this.startY;
+                if (Math.abs(totalDeltaY) > 10 && this.scrollElement) {
+                    this.addMomentum(totalDeltaY);
+                }
+            }
+
+            addMomentum(deltaY) {
+                let velocity = -deltaY * 0.5;
+                const deceleration = 0.95;
+                const threshold = 0.5;
+
+                const animate = () => {
+                    if (Math.abs(velocity) > threshold) {
+                        this.scrollElement.scrollBy(0, velocity);
+                        velocity *= deceleration;
+                        requestAnimationFrame(animate);
+                    }
+                };
+
+                animate();
+            }
+        }
+
+        // 初始化触摸模拟器
+        document.addEventListener('DOMContentLoaded', () => {
+            new TouchSimulator();
+        });
+
+        // 如果DOM已经加载完成
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                new TouchSimulator();
+            });
+        } else {
+            new TouchSimulator();
+        }
+    </script>
+
+    <!-- 右侧导航条 -->
+    <div class="side-navigation">
+        <button class="nav-btn nav-back" onclick="history.back()">
+            返回
+        </button>
+        <button class="nav-btn nav-home" onclick="window.location.href='dashboard.html'">
+            主页
+        </button>
+        <button class="nav-btn nav-menu" onclick="window.location.href='index.html'">
+            导航页
+        </button>
+    </div>
+
+    <style>
+        .side-navigation {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 80px;
+            height: 100vh;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+            z-index: 9999;
+            border-left: 1px solid #4a5a6b;
+        }
+
+        .nav-btn {
+            background: none;
+            border: 2px solid transparent;
+            color: white;
+            padding: 12px 8px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            width: 60px;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+            writing-mode: horizontal-tb;
+        }
+
+        .nav-back {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, 0.1);
+        }
+
+        .nav-home {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, 0.1);
+        }
+
+        .nav-menu {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.1);
+        }
+
+        .nav-back:hover {
+            background: #e74c3c;
+            transform: scale(1.05);
+        }
+
+        .nav-home:hover {
+            background: #3498db;
+            transform: scale(1.05);
+        }
+
+        .nav-menu:hover {
+            background: #2ecc71;
+            transform: scale(1.05);
+        }
+
+        .nav-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 确保内容不被导航条遮挡 */
+        body {
+            padding-right: 80px;
+            padding-bottom: 0;
+        }
+    </style>
+</body>
+</html>

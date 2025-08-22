@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>发现 - 智能秤</title>
+    <link rel="stylesheet" href="styles/style.css">
+    <style>
+        /* iPhone 15 Pro Max 模型样式 */
+        .phone-container {
+            width: 430px;
+            height: 932px;
+            background: #1c1c1e;
+            border-radius: 55px;
+            padding: 8px;
+            margin: 20px auto;
+            box-shadow: 
+                0 0 0 2px #2c2c2e,
+                0 10px 30px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 47px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .dynamic-island {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 126px;
+            height: 37px;
+            background: #1c1c1e;
+            border-radius: 20px;
+            z-index: 1001;
+        }
+
+        .status-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 47px;
+            background: transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            z-index: 1000;
+            color: #1c1c1e;
+            font-size: 17px;
+            font-weight: 600;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .status-bar .time {
+            margin-left: 0;
+        }
+
+        .status-bar .right-indicators {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* 适配内容区域 */
+        .phone-screen .app-container {
+            margin: 0 !important;
+            padding: 0 !important;
+            height: 100% !important;
+            max-width: none !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        .phone-screen .app-header {
+            padding: 60px 20px 20px 20px !important;
+            position: relative !important;
+            z-index: 10 !important;
+        }
+
+        .phone-screen .app-main {
+            flex: 1 !important;
+            padding: 0 20px 100px 20px !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .phone-screen .app-main::-webkit-scrollbar {
+            display: none;
+        }
+
+        .phone-screen .bottom-nav {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            z-index: 100 !important;
+        }
+
+        .phone-screen .loading-overlay {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            z-index: 1500 !important;
+        }
+
+        /* 防止任何元素溢出手机屏幕 */
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body id="page-discover">
+
+    <!-- iPhone 15 Pro Max 容器 -->
+    <div class="phone-container">
+        <div class="phone-screen">
+            <!-- Dynamic Island -->
+            <div class="dynamic-island"></div>
+            
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <span class="time">9:41</span>
+                <div class="right-indicators">
+                    <!-- Signal Bars -->
+                    <svg width="18" height="12" viewBox="0 0 18 12" class="signal-icon">
+                        <rect x="0" y="8" width="3" height="4" rx="1" fill="currentColor"/>
+                        <rect x="5" y="6" width="3" height="6" rx="1" fill="currentColor"/>
+                        <rect x="10" y="4" width="3" height="8" rx="1" fill="currentColor"/>
+                        <rect x="15" y="2" width="3" height="10" rx="1" fill="currentColor"/>
+                    </svg>
+                    
+                    <!-- WiFi Icon -->
+                    <svg width="17" height="17" viewBox="0 0 17 17" class="wifi-icon">
+                        <path d="M8.5 3C11.261 3 13.8 3.895 15.85 5.4L14.65 6.85C12.965 5.665 10.8 5 8.5 5C6.2 5 4.035 5.665 2.35 6.85L1.15 5.4C3.2 3.895 5.739 3 8.5 3ZM8.5 7C10.13 7 11.685 7.475 13 8.3L11.8 9.75C10.85 9.175 9.715 8.85 8.5 8.85C7.285 8.85 6.15 9.175 5.2 9.75L4 8.3C5.315 7.475 6.87 7 8.5 7ZM8.5 11C9.19 11 9.84 11.21 10.4 11.575L8.5 14L6.6 11.575C7.16 11.21 7.81 11 8.5 11Z" fill="currentColor"/>
+                    </svg>
+                    
+                    <!-- Battery Icon -->
+                    <svg width="27" height="13" viewBox="0 0 27 13" class="battery-icon">
+                        <rect x="1" y="2" width="22" height="9" rx="2" stroke="currentColor" stroke-width="1" fill="none"/>
+                        <rect x="2.5" y="3.5" width="17.6" height="6" rx="1" fill="currentColor"/>
+                        <rect x="24" y="5" width="2" height="3" rx="1" fill="currentColor"/>
+                    </svg>
+                </div>
+            </div>
+
+    <!-- App 容器 -->
+    <div class="app-container">
+
+        <!-- 顶部标题 -->
+        <header class="app-header">
+            <h1 class="title">发现</h1>
+        </header>
+
+        <!-- 主要内容区域 -->
+        <main class="app-main">
+
+            <!-- 健康资讯卡片 -->
+            <div class="card discover-card">
+                <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=2898&auto=format&fit=crop" alt="健康饮食" class="card-image">
+                <div class="card-content">
+                    <h3 class="card-title">科学饮食：如何均衡摄入营养</h3>
+                    <p class="card-description">了解如何通过合理的膳食搭配，为身体提供所需能量，保持健康活力。</p>
+                </div>
+            </div>
+
+            <!-- 健身计划卡片 -->
+            <div class="card discover-card">
+                <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=2940&auto=format&fit=crop" alt="健身计划" class="card-image">
+                <div class="card-content">
+                    <h3 class="card-title">初学者友好：一周燃脂健身操</h3>
+                    <p class="card-description">一套适合新手的家庭健身计划，无需器械，随时随地开启你的燃脂之旅。</p>
+                </div>
+            </div>
+            
+            <!-- 心理健康卡片 -->
+            <div class="card discover-card">
+                <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=3020&auto=format&fit=crop" alt="心理健康" class="card-image">
+                <div class="card-content">
+                    <h3 class="card-title">压力管理：通过冥想找到内心平静</h3>
+                    <p class="card-description">学习简单的冥想技巧，有效缓解日常工作和生活中的压力，提升幸福感。</p>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- 底部导航栏 -->
+        <nav class="bottom-nav">
+            <a href="dashboard.html" class="nav-item">
+                <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+                <span>看板</span>
+            </a>
+            <a href="discover.html" class="nav-item active">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
+                <span>发现</span>
+            </a>
+            <a href="#" id="measure-button" class="nav-item nav-item-add">
+                <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                <span>我的</span>
+            </a>
+        </nav>
+
+        <!-- 测量加载动画 (通用) -->
+        <div id="loadingOverlay" class="loading-overlay">
+            <div class="spinner"></div>
+            <p>正在测量中...</p>
+        </div>
+    </div>
+
+    <script src="scripts/script.js"></script>
+    
+    <script>
+        // 实时更新iPhone状态栏时间
+        function updateStatusBarTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour12: false, 
+                hour: 'numeric', 
+                minute: '2-digit' 
+            });
+            const timeElement = document.querySelector('.status-bar .time');
+            if (timeElement) {
+                timeElement.textContent = timeString;
+            }
+        }
+        
+        // 页面加载时立即更新时间
+        updateStatusBarTime();
+        
+        // 每分钟更新一次时间
+        setInterval(updateStatusBarTime, 60000);
+    </script>
+        </div>
+    </div>
+
+    <!-- 右侧导航条 -->
+    <div class="side-navigation">
+        <button class="nav-btn nav-back" onclick="history.back()">
+            返回
+        </button>
+        <button class="nav-btn nav-home" onclick="window.location.href='dashboard.html'">
+            主页
+        </button>
+        <button class="nav-btn nav-menu" onclick="window.location.href='index.html'">
+            导航页
+        </button>
+    </div>
+
+    <style>
+        .side-navigation {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 80px;
+            height: 100vh;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+            z-index: 9999;
+            border-left: 1px solid #4a5a6b;
+        }
+
+        .nav-btn {
+            background: none;
+            border: 2px solid transparent;
+            color: white;
+            padding: 12px 8px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            width: 60px;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+            writing-mode: horizontal-tb;
+        }
+
+        .nav-back {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, 0.1);
+        }
+
+        .nav-home {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, 0.1);
+        }
+
+        .nav-menu {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.1);
+        }
+
+        .nav-back:hover {
+            background: #e74c3c;
+            transform: scale(1.05);
+        }
+
+        .nav-home:hover {
+            background: #3498db;
+            transform: scale(1.05);
+        }
+
+        .nav-menu:hover {
+            background: #2ecc71;
+            transform: scale(1.05);
+        }
+
+        .nav-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 确保内容不被导航条遮挡 */
+        body {
+            padding-right: 80px;
+            padding-bottom: 0;
+        }
+    </style>
+</body>
+</html>
