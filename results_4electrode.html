@@ -78,6 +78,8 @@
             max-width: none !important;
             display: flex !important;
             flex-direction: column !important;
+            /* 确保容器能够正确计算子元素高度 */
+            overflow: hidden !important;
         }
 
         .phone-screen .app-header {
@@ -88,20 +90,24 @@
 
         .phone-screen .app-main {
             flex: 1 !important;
-            padding: 0 20px 60px 20px !important;
+            padding: 0 20px 20px 20px !important;
             overflow-y: auto !important;
             -webkit-overflow-scrolling: touch;
-            height: calc(100% - 80px) !important;
             box-sizing: border-box !important;
+            /* 使用iPhone容器的高度而不是视口高度 */
+            height: calc(100% - 100px) !important; /* iPhone容器内的高度计算 */
+            min-height: 0 !important; /* 确保flex子元素可以收缩 */
         }
 
         .phone-screen .app-main::-webkit-scrollbar {
             display: none;
         }
 
-        /* 适配页面滚动，确保在不同尺寸屏幕上都能完整显示 */
-        html {
+        /* 防止任何元素溢出手机屏幕 */
+        html, body {
+            width: 100%;
             height: 100%;
+            overflow: hidden;
         }
 
         body {
@@ -110,10 +116,8 @@
             align-items: center;
             justify-content: center;
             margin: 0;
-            padding: 40px 80px 40px 0; /* 增加垂直内边距，并保持右侧内边距 */
-            min-height: 100vh; /* 确保body至少和视口一样高 */
-            box-sizing: border-box; /* 让内边距包含在高度计算内 */
-            overflow-y: auto; /* 允许body在需要时滚动 */
+            padding: 0;
+            padding-right: 80px;
         }
 
         /* 右侧导航条样式 */
@@ -544,7 +548,13 @@
                         </svg>
                     </button>
                     <h1 class="title">测量结果</h1>
-                    <div class="header-spacer"></div>
+                    <button class="share-btn" onclick="shareResults()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+                            <polyline points="16,6 12,2 8,6"/>
+                            <line x1="12" y1="2" x2="12" y2="15"/>
+                        </svg>
+                    </button>
                 </header>
 
                 <!-- 主要内容区域 -->
@@ -764,8 +774,8 @@
                         </div>
                     </div>
 
-                    <!-- 最终底部间距 -->
-                    <div style="height: 120px;"></div>
+                    <!-- 最终底部间距，确保内容可以完全滚动显示 -->
+                    <div style="height: 150px;"></div>
 
                 </main>
 
@@ -826,6 +836,59 @@
                 history.back();
             }
         }
+        
+        // 分享测量结果函数
+        function shareResults() {
+            // 获取测量数据
+            const weight = document.querySelector('.overview-item .value').textContent;
+            const bmi = document.querySelectorAll('.overview-item .value')[1].textContent;
+            const measureTime = document.querySelector('.measure-time').textContent;
+            const userName = document.querySelector('.user-name').textContent;
+            
+            // 构建分享文本
+            const shareText = `${userName}的体测报告\n📅 测量时间：${measureTime}\n⚖️ 体重：${weight}kg\n📊 BMI：${bmi}\n\n通过智能秤获得的详细健康分析报告，身体状况良好！💪`;
+            
+            // 检查是否支持Web Share API
+            if (navigator.share) {
+                navigator.share({
+                    title: '体测报告',
+                    text: shareText,
+                    url: window.location.href
+                }).then(() => {
+                    console.log('分享成功');
+                }).catch((error) => {
+                    console.log('分享取消或失败:', error);
+                    fallbackShare(shareText);
+                });
+            } else {
+                // 降级处理：复制到剪贴板
+                fallbackShare(shareText);
+            }
+        }
+        
+        // 降级分享函数
+        function fallbackShare(text) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('测量结果已复制到剪贴板，您可以粘贴到任何地方分享！');
+                }).catch(() => {
+                    // 如果剪贴板API也不支持，使用传统方法
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        alert('测量结果已复制到剪贴板，您可以粘贴到任何地方分享！');
+                    } catch (err) {
+                        alert('分享功能暂不可用，请手动复制测量结果。');
+                    }
+                    document.body.removeChild(textArea);
+                });
+            } else {
+                alert('分享功能暂不可用，请手动复制测量结果。');
+            }
+        }
     </script>
 
     <!-- 触摸模拟JavaScript -->
@@ -882,6 +945,12 @@
             }
             
             handleMouseDown(e) {
+                // 检查是否点击在可滚动区域内
+                const appMain = this.phoneScreen.querySelector('.app-main');
+                if (!appMain || !appMain.contains(e.target)) {
+                    return; // 不在滚动区域内，不处理
+                }
+                
                 this.isMouseDown = true;
                 this.startY = e.clientY;
                 this.currentY = e.clientY;
@@ -917,9 +986,20 @@
                 const appMain = this.phoneScreen.querySelector('.app-main');
                 
                 if (appMain) {
-                    const newScrollTop = appMain.scrollTop + scrollDistance * 0.8;
+                    const currentScrollTop = appMain.scrollTop;
                     const maxScroll = appMain.scrollHeight - appMain.clientHeight;
-                    appMain.scrollTop = Math.max(0, Math.min(maxScroll, newScrollTop));
+                    const newScrollTop = currentScrollTop + scrollDistance * 1.0; // 提高滚动敏感度
+                    
+                    // 确保滚动在有效范围内
+                    const clampedScrollTop = Math.max(0, Math.min(maxScroll, newScrollTop));
+                    appMain.scrollTop = clampedScrollTop;
+                    
+                    // 如果已经到达边界，允许浏览器处理默认行为
+                    if ((scrollDistance > 0 && currentScrollTop >= maxScroll) || 
+                        (scrollDistance < 0 && currentScrollTop <= 0)) {
+                        // 到达边界，不阻止默认行为
+                        return;
+                    }
                 }
                 
                 this.startY = e.clientY;
