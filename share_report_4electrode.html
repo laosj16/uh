@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>体测报告分享 - 4电极智能秤</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .report-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 报告头部 */
+        .report-header {
+            background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 100%);
+            padding: 40px 30px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .report-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="20" r="3" fill="rgba(255,255,255,0.05)"/><circle cx="40" cy="60" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="70" r="2" fill="rgba(255,255,255,0.05)"/><circle cx="10" cy="80" r="1.5" fill="rgba(255,255,255,0.1)"/></svg>');
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .report-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .report-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .user-info-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .avatar-large {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .avatar-large svg {
+            width: 40px;
+            height: 40px;
+            color: white;
+        }
+
+        .user-details h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .user-details p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* 概览区域 */
+        .overview-section {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .overview-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e9ecef;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .overview-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #FF6B6B, #4ECDC4);
+        }
+
+        .overview-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: #FF6B6B;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .overview-unit {
+            font-size: 18px;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .overview-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        /* 报告内容 */
+        .report-content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #e9ecef;
+            position: relative;
+        }
+
+        .section-title::before {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            border-radius: 2px;
+        }
+
+        .section:nth-child(1) .section-title::before { background: linear-gradient(90deg, #FF6B6B, #FF8E53); }
+        .section:nth-child(2) .section-title::before { background: linear-gradient(90deg, #4ECDC4, #44A08D); }
+        .section:nth-child(3) .section-title::before { background: linear-gradient(90deg, #45B7D1, #96CEB4); }
+        .section:nth-child(4) .section-title::before { background: linear-gradient(90deg, #F093FB, #F5576C); }
+        .section:nth-child(5) .section-title::before { background: linear-gradient(90deg, #4FACFE, #00F2FE); }
+        .section:nth-child(6) .section-title::before { background: linear-gradient(90deg, #43E97B, #38F9D7); }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .data-item {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .data-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
+        .data-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .data-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .data-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .data-value .unit {
+            font-size: 16px;
+            color: #666;
+            font-weight: 500;
+            margin-left: 4px;
+        }
+
+        .trend-indicator {
+            display: inline-block;
+            margin-left: 8px;
+            font-size: 16px;
+        }
+
+        .trend-up { color: #27ae60; }
+        .trend-down { color: #e74c3c; }
+
+        .health-status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .status-excellent {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-good {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-normal {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .data-description {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        /* 评估卡片 */
+        .assessment-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .assessment-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+            animation: float 15s infinite linear;
+        }
+
+        .score-display {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        .score-label {
+            font-size: 18px;
+            margin-bottom: 16px;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .assessment-level {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 配色方案 */
+        .section:nth-child(1) .data-item::before { background: linear-gradient(90deg, #FF6B6B, #FF8E53); }
+        .section:nth-child(2) .data-item::before { background: linear-gradient(90deg, #4ECDC4, #44A08D); }
+        .section:nth-child(3) .data-item::before { background: linear-gradient(90deg, #45B7D1, #96CEB4); }
+        .section:nth-child(4) .data-item::before { background: linear-gradient(90deg, #F093FB, #F5576C); }
+        .section:nth-child(5) .data-item::before { background: linear-gradient(90deg, #4FACFE, #00F2FE); }
+        .section:nth-child(6) .data-item::before { background: linear-gradient(90deg, #43E97B, #38F9D7); }
+
+        /* 报告底部 */
+        .report-footer {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .footer-note {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .share-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .share-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #666;
+            border: 2px solid #e9ecef;
+        }
+
+        .share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .report-header {
+                padding: 30px 20px;
+            }
+
+            .report-title {
+                font-size: 24px;
+            }
+
+            .user-info-header {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .avatar-large {
+                width: 60px;
+                height: 60px;
+            }
+
+            .overview-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 16px;
+            }
+
+            .overview-value {
+                font-size: 28px;
+            }
+
+            .data-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .report-content,
+            .overview-section {
+                padding: 20px;
+            }
+
+            .share-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .share-btn {
+                width: 200px;
+                justify-content: center;
+            }
+        }
+
+        /* 打印样式 */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .report-container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            .share-buttons {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <!-- 报告头部 -->
+        <div class="report-header">
+            <h1 class="report-title">专业体测分析报告</h1>
+            <p class="report-subtitle">4电极智能秤 · 25项健康指标全面分析</p>
+            <div class="user-info-header">
+                <div class="avatar-large">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                </div>
+                <div class="user-details">
+                    <h3>华仔</h3>
+                    <p>测量时间：2025/8/22 11:16</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 概览区域 -->
+        <div class="overview-section">
+            <div class="overview-grid">
+                <div class="overview-card">
+                    <span class="overview-value">65.8</span>
+                    <span class="overview-unit">kg</span>
+                    <div class="overview-label">体重</div>
+                </div>
+                <div class="overview-card">
+                    <span class="overview-value">22.1</span>
+                    <span class="overview-unit">BMI</span>
+                    <div class="overview-label">身体质量指数</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 报告内容 -->
+        <div class="report-content">
+            <!-- 基础指标 -->
+            <div class="section">
+                <h2 class="section-title">基础指标</h2>
+                <div class="data-grid">
+                    <div class="data-item">
+                        <div class="data-label">心率</div>
+                        <div class="data-value">72 <span class="unit">bpm</span></div>
+                        <div class="health-status status-good">正常</div>
+                        <div class="data-description">静息心率处于健康范围，心血管功能良好</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">BMR基础代谢</div>
+                        <div class="data-value">1456 <span class="unit">kcal</span></div>
+                        <div class="health-status status-normal">标准</div>
+                        <div class="data-description">维持基本生理功能所需的最低能量</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 身体成分 -->
+            <div class="section">
+                <h2 class="section-title">身体成分</h2>
+                <div class="data-grid">
+                    <div class="data-item">
+                        <div class="data-label">体脂率</div>
+                        <div class="data-value">18.5 <span class="unit">%</span> <span class="trend-indicator trend-down">↓</span></div>
+                        <div class="health-status status-excellent">优秀</div>
+                        <div class="data-description">体脂率在理想范围，身材匀称健康</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">脂肪量</div>
+                        <div class="data-value">12.2 <span class="unit">kg</span></div>
+                        <div class="health-status status-good">适中</div>
+                        <div class="data-description">脂肪含量合理，有助于保护内脏器官</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">肌肉率</div>
+                        <div class="data-value">43.2 <span class="unit">%</span> <span class="trend-indicator trend-up">↑</span></div>
+                        <div class="health-status status-excellent">优秀</div>
+                        <div class="data-description">肌肉含量高，基础代谢强，体型健美</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">肌肉量</div>
+                        <div class="data-value">28.4 <span class="unit">kg</span></div>
+                        <div class="health-status status-good">良好</div>
+                        <div class="data-description">肌肉质量充足，有助于维持健康体重</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">蛋白质率</div>
+                        <div class="data-value">16.8 <span class="unit">%</span></div>
+                        <div class="health-status status-good">正常</div>
+                        <div class="data-description">蛋白质是肌肉和器官的主要构成成分</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">水分率</div>
+                        <div class="data-value">58.2 <span class="unit">%</span></div>
+                        <div class="health-status status-excellent">理想</div>
+                        <div class="data-description">水分比例适中，细胞代谢活跃</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 脂肪分析 -->
+            <div class="section">
+                <h2 class="section-title">脂肪分析</h2>
+                <div class="data-grid">
+                    <div class="data-item">
+                        <div class="data-label">皮下脂肪率</div>
+                        <div class="data-value">12.4 <span class="unit">%</span></div>
+                        <div class="health-status status-good">适中</div>
+                        <div class="data-description">皮下脂肪适量，保温和缓冲功能良好</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">内脏脂肪</div>
+                        <div class="data-value">5 <span class="unit">级</span></div>
+                        <div class="health-status status-good">正常</div>
+                        <div class="data-description">内脏脂肪适量，代谢功能良好</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 肌肉分析 -->
+            <div class="section">
+                <h2 class="section-title">肌肉分析</h2>
+                <div class="data-grid">
+                    <div class="data-item">
+                        <div class="data-label">骨骼肌率</div>
+                        <div class="data-value">39.2 <span class="unit">%</span> <span class="trend-indicator trend-up">↑</span></div>
+                        <div class="health-status status-excellent">优秀</div>
+                        <div class="data-description">骨骼肌含量高，力量和耐力出色</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">骨骼肌量</div>
+                        <div class="data-value">25.8 <span class="unit">kg</span></div>
+                        <div class="health-status status-excellent">优秀</div>
+                        <div class="data-description">骨骼肌质量优异，运动能力强</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">骨量</div>
+                        <div class="data-value">2.8 <span class="unit">kg</span></div>
+                        <div class="health-status status-good">健康</div>
+                        <div class="data-description">骨密度正常，骨骼健康状况良好</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 体重管理建议 -->
+            <div class="section">
+                <h2 class="section-title">体重管理建议</h2>
+                <div class="data-grid">
+                    <div class="data-item">
+                        <div class="data-label">肥胖等级</div>
+                        <div class="data-value">正常</div>
+                        <div class="health-status status-excellent">健康</div>
+                        <div class="data-description">体重在正常范围，无肥胖风险</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">脂肪控制量</div>
+                        <div class="data-value">-2.1 <span class="unit">kg</span> <span class="trend-indicator trend-down">↓</span></div>
+                        <div class="health-status status-good">目标</div>
+                        <div class="data-description">建议减少2.1kg脂肪，提升身体成分</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">肌肉控制量</div>
+                        <div class="data-value">+1.5 <span class="unit">kg</span> <span class="trend-indicator trend-up">↑</span></div>
+                        <div class="health-status status-good">目标</div>
+                        <div class="data-description">建议增加1.5kg肌肉，提高基础代谢</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">控制体重</div>
+                        <div class="data-value">64.2 <span class="unit">kg</span></div>
+                        <div class="health-status status-good">目标</div>
+                        <div class="data-description">理想的体重控制目标值</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">理想体重</div>
+                        <div class="data-value">62.8 <span class="unit">kg</span></div>
+                        <div class="health-status status-excellent">理想</div>
+                        <div class="data-description">最适合您的理想体重范围</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">去脂体重</div>
+                        <div class="data-value">53.6 <span class="unit">kg</span></div>
+                        <div class="health-status status-good">健康</div>
+                        <div class="data-description">除脂肪外的身体重量，反映肌肉骨骼健康</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 综合评估 -->
+            <div class="section">
+                <h2 class="section-title">综合评估</h2>
+                
+                <div class="assessment-card">
+                    <div class="score-display">85</div>
+                    <div class="score-label">综合健康评分</div>
+                    <div class="assessment-level">身体状况良好</div>
+                </div>
+
+                <div class="data-grid">
+                    <div class="data-item">
+                        <div class="data-label">身体类型</div>
+                        <div class="data-value">标准型</div>
+                        <div class="health-status status-excellent">理想</div>
+                        <div class="data-description">肌肉与脂肪比例协调，体型匀称</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">身体年龄</div>
+                        <div class="data-value">24 <span class="unit">岁</span></div>
+                        <div class="health-status status-excellent">年轻</div>
+                        <div class="data-description">身体机能相当于24岁的健康状态</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">健康评价</div>
+                        <div class="data-value">健康</div>
+                        <div class="health-status status-excellent">优秀</div>
+                        <div class="data-description">整体健康状况优良，请继续保持</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 报告底部 -->
+        <div class="report-footer">
+            <div class="footer-note">
+                本报告基于4电极智能秤专业测量，包含25项核心健康指标分析。<br>
+                建议定期测量，跟踪身体变化趋势。如有疑问请咨询专业健康顾问。
+            </div>
+            <div class="share-buttons">
+                <button class="share-btn btn-primary" onclick="shareReport()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.05 4.11c-.05.23-.09.46-.09.7 0 1.66 1.34 3 3 3s3-1.34 3-3-1.34-3-3-3z"/>
+                    </svg>
+                    分享报告
+                </button>
+                <button class="share-btn btn-secondary" onclick="downloadReport()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                    下载PDF
+                </button>
+                <button class="share-btn btn-secondary" onclick="window.print()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/>
+                    </svg>
+                    打印报告
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function shareReport() {
+            const shareText = `华仔的专业体测报告\n📅 测量时间：2025/8/22 11:16\n⚖️ 体重：65.8kg\n📊 BMI：22.1\n💪 综合健康评分：85分\n\n通过4电极智能秤获得的25项健康指标分析，身体状况良好！`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: '专业体测分析报告',
+                    text: shareText,
+                    url: window.location.href
+                }).catch(console.error);
+            } else {
+                navigator.clipboard.writeText(shareText).then(() => {
+                    alert('报告内容已复制到剪贴板！');
+                }).catch(() => {
+                    alert('分享功能暂不可用');
+                });
+            }
+        }
+
+        function downloadReport() {
+            window.print();
+        }
+
+        // 添加动画效果
+        document.addEventListener('DOMContentLoaded', function() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            });
+
+            document.querySelectorAll('.data-item, .overview-card').forEach(item => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(20px)';
+                item.style.transition = 'all 0.6s ease';
+                observer.observe(item);
+            });
+        });
+    </script>
+</body>
+</html>
