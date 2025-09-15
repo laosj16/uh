@@ -1225,122 +1225,102 @@
 
     </div>
 
+    <!-- AI分析加载动画，放在phone-screen内部 -->
+    <div class="ai-loading-overlay" id="aiLoadingOverlay">
+        <div class="ai-loading-content">
+            <div class="ai-brain">
+                <div class="brain-scan">
+                    <div class="scan-lines">
+                        <div class="scan-line"></div>
+                        <div class="scan-line"></div>
+                        <div class="scan-line"></div>
+                        <div class="scan-line"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="ai-loading-text">AI正在分析中...</div>
+            <div class="ai-loading-subtitle">正在为您生成个性化健康报告</div>
+            <div class="loading-steps">
+                <div class="loading-step" data-step="1">
+                    <div class="step-icon">1</div>
+                    <span>采集身体数据</span>
+                </div>
+                <div class="loading-step" data-step="2">
+                    <div class="step-icon">2</div>
+                    <span>AI深度分析</span>
+                </div>
+                <div class="loading-step" data-step="3">
+                    <div class="step-icon">3</div>
+                    <span>生成健康评估</span>
+                </div>
+                <div class="loading-step" data-step="4">
+                    <div class="step-icon">4</div>
+                    <span>制定个性化建议</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 引入交互脚本 -->
     <script src="scripts/script.js"></script>
     
     <script>
         // 卡片展开/收起功能
         function toggleDataItem(element) {
-            // 获取当前点击的卡片
             const clickedItem = element;
-            
-            // 检查是否已经展开
             const isExpanded = clickedItem.classList.contains('expanded');
             
-            // 关闭所有其他展开的卡片
-            const allItems = document.querySelectorAll('.data-item.expanded');
-            allItems.forEach(item => {
-                if (item !== clickedItem) {
-                    item.classList.remove('expanded');
-                }
-            });
-            
-            // 切换当前卡片的展开状态
             if (isExpanded) {
+                // 收起卡片
                 clickedItem.classList.remove('expanded');
             } else {
-                clickedItem.classList.add('expanded');
+                // 先收起所有其他已展开的卡片
+                const allExpandedItems = document.querySelectorAll('.data-item.expanded');
+                allExpandedItems.forEach(item => {
+                    if (item !== clickedItem) {
+                        item.classList.remove('expanded');
+                    }
+                });
                 
-                // 滚动到卡片位置（延迟执行以等待动画）
-                setTimeout(() => {
-                    const rect = clickedItem.getBoundingClientRect();
-                    const appMain = document.querySelector('.app-main');
-                    const currentScroll = appMain.scrollTop;
-                    const targetScroll = currentScroll + rect.top - 100;
-                    
-                    appMain.scrollTo({
-                        top: targetScroll,
-                        behavior: 'smooth'
-                    });
-                }, 100);
+                // 展开当前卡片
+                clickedItem.classList.add('expanded');
             }
         }
         
-        // AI分析启动函数（带加载动画）
+        // AI分析启动函数
         function startAIAnalysis() {
-            // 显示加载动画
-            const overlay = document.getElementById('aiLoadingOverlay');
-            overlay.classList.add('show');
-            
-            // 获取测量数据
-            const weight = document.querySelector('.overview-item .value').textContent;
-            const bmi = document.querySelectorAll('.overview-item .value')[1].textContent;
-            const userName = document.querySelector('.user-name').textContent;
-            const measureTime = document.querySelector('.measure-time').textContent;
-            
-            // 构建URL参数
-            const params = new URLSearchParams({
-                weight: weight,
-                bmi: bmi,
-                user: userName,
-                time: measureTime,
-                type: '8electrode'
-            });
-            
-            // 模拟AI分析步骤
-            simulateAIAnalysis(() => {
-                // 分析完成后跳转
-                window.location.href = `ai_analysis.html?${params.toString()}`;
-            });
-        }
-        
-        // 模拟AI分析过程
-        function simulateAIAnalysis(callback) {
-            const steps = document.querySelectorAll('.loading-step');
-            let currentStep = 0;
-            
-            function activateStep(index) {
-                if (index < steps.length) {
-                    // 激活当前步骤
-                    steps[index].classList.add('active');
-                    const stepIcon = steps[index].querySelector('.step-icon');
-                    stepIcon.classList.add('active');
+            // 显示AI加载动画
+            const aiOverlay = document.getElementById('aiLoadingOverlay');
+            if (aiOverlay) {
+                aiOverlay.classList.add('show');
+                
+                // 按顺序激活步骤
+                const steps = document.querySelectorAll('.loading-step');
+                let totalTime = 0;
+                
+                steps.forEach((step, index) => {
+                    const duration = (index + 1) * 1000; // 每个步骤递增1秒
                     
-                    // 完成前面的步骤
-                    for (let i = 0; i < index; i++) {
-                        steps[i].classList.remove('active');
-                        steps[i].classList.add('completed');
-                        steps[i].querySelector('.step-icon').classList.remove('active');
-                        steps[i].querySelector('.step-icon').classList.add('completed');
-                        steps[i].querySelector('.step-icon').innerHTML = '✓';
-                    }
-                }
+                    setTimeout(() => {
+                        step.classList.add('active');
+                        
+                        // 如果不是最后一个步骤，前一个步骤变为completed
+                        if (index > 0) {
+                            steps[index - 1].classList.add('completed');
+                            steps[index - 1].classList.remove('active');
+                        }
+                        
+                        // 如果是最后一个步骤，等待1秒后跳转
+                        if (index === steps.length - 1) {
+                            setTimeout(() => {
+                                goToAIAnalysis();
+                            }, 1000);
+                        }
+                    }, totalTime);
+                    
+                    totalTime += duration;
+                });
             }
-            
-            // 8电极设备分析时间稍长一些
-            const stepDuration = [1000, 1500, 1200, 1000];
-            let totalTime = 0;
-            
-            stepDuration.forEach((duration, index) => {
-                setTimeout(() => {
-                    activateStep(index);
-                    if (index === stepDuration.length - 1) {
-                        // 最后一步完成后稍等一下再跳转
-                        setTimeout(() => {
-                            // 完成最后一步
-                            steps[index].classList.remove('active');
-                            steps[index].classList.add('completed');
-                            steps[index].querySelector('.step-icon').classList.remove('active');
-                            steps[index].querySelector('.step-icon').classList.add('completed');
-                            steps[index].querySelector('.step-icon').innerHTML = '✓';
-                            
-                            // 执行回调（跳转页面）
-                            setTimeout(callback, 500);
-                        }, 600);
-                    }
-                }, totalTime);
-                totalTime += duration;
-            });
         }
         
         // AI分析页面跳转函数（旧版本，保留作为备用）
@@ -1605,44 +1585,6 @@
         }
 
     </script>
-        </div>
-    </div>
-
-    <!-- AI分析加载动画 -->
-    <div class="ai-loading-overlay" id="aiLoadingOverlay">
-        <div class="ai-loading-content">
-            <div class="ai-brain">
-                <div class="brain-scan">
-                    <div class="scan-lines">
-                        <div class="scan-line"></div>
-                        <div class="scan-line"></div>
-                        <div class="scan-line"></div>
-                        <div class="scan-line"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="ai-loading-text">AI正在分析中...</div>
-            <div class="ai-loading-subtitle">正在为您生成个性化健康报告</div>
-            <div class="loading-steps">
-                <div class="loading-step" data-step="1">
-                    <div class="step-icon">1</div>
-                    <span>采集身体数据</span>
-                </div>
-                <div class="loading-step" data-step="2">
-                    <div class="step-icon">2</div>
-                    <span>AI深度分析</span>
-                </div>
-                <div class="loading-step" data-step="3">
-                    <div class="step-icon">3</div>
-                    <span>生成健康评估</span>
-                </div>
-                <div class="loading-step" data-step="4">
-                    <div class="step-icon">4</div>
-                    <span>制定个性化建议</span>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- 右侧导航条 -->
     <div class="side-navigation">
@@ -1895,11 +1837,11 @@
 
         /* AI分析加载动画 */
         .ai-loading-overlay {
-            position: fixed;
+            position: absolute;
             top: 0;
             left: 0;
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: none;
             align-items: center;
