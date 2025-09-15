@@ -16,8 +16,7 @@
             margin: 20px auto;
             box-shadow: 
                 0 0 0 2px #2c2c2e,
-                0 10px 30px rgba(0, 0, 0, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                0 10px 30px rgba(0, 0, 0, 0.3);
             position: relative;
         }
 
@@ -39,35 +38,7 @@
             height: 37px;
             background: #1c1c1e;
             border-radius: 20px;
-            z-index: 1001;
-        }
-
-        .status-bar {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 47px;
-            background: transparent;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 24px;
             z-index: 1000;
-            color: #1c1c1e;
-            font-size: 17px;
-            font-weight: 600;
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-
-        .status-bar .time {
-            margin-left: 0;
-        }
-
-        .status-bar .right-indicators {
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
 
         /* 适配内容区域 */
@@ -127,32 +98,6 @@
         <div class="phone-screen">
             <!-- Dynamic Island -->
             <div class="dynamic-island"></div>
-            
-            <!-- Status Bar -->
-            <div class="status-bar">
-                <span class="time">9:41</span>
-                <div class="right-indicators">
-                    <!-- Signal Bars -->
-                    <svg width="18" height="12" viewBox="0 0 18 12" class="signal-icon">
-                        <rect x="0" y="8" width="3" height="4" rx="1" fill="currentColor"/>
-                        <rect x="5" y="6" width="3" height="6" rx="1" fill="currentColor"/>
-                        <rect x="10" y="4" width="3" height="8" rx="1" fill="currentColor"/>
-                        <rect x="15" y="2" width="3" height="10" rx="1" fill="currentColor"/>
-                    </svg>
-                    
-                    <!-- WiFi Icon -->
-                    <svg width="17" height="17" viewBox="0 0 17 17" class="wifi-icon">
-                        <path d="M8.5 3C11.261 3 13.8 3.895 15.85 5.4L14.65 6.85C12.965 5.665 10.8 5 8.5 5C6.2 5 4.035 5.665 2.35 6.85L1.15 5.4C3.2 3.895 5.739 3 8.5 3ZM8.5 7C10.13 7 11.685 7.475 13 8.3L11.8 9.75C10.85 9.175 9.715 8.85 8.5 8.85C7.285 8.85 6.15 9.175 5.2 9.75L4 8.3C5.315 7.475 6.87 7 8.5 7ZM8.5 11C9.19 11 9.84 11.21 10.4 11.575L8.5 14L6.6 11.575C7.16 11.21 7.81 11 8.5 11Z" fill="currentColor"/>
-                    </svg>
-                    
-                    <!-- Battery Icon -->
-                    <svg width="27" height="13" viewBox="0 0 27 13" class="battery-icon">
-                        <rect x="1" y="2" width="22" height="9" rx="2" stroke="currentColor" stroke-width="1" fill="none"/>
-                        <rect x="2.5" y="3.5" width="17.6" height="6" rx="1" fill="currentColor"/>
-                        <rect x="24" y="5" width="2" height="3" rx="1" fill="currentColor"/>
-                    </svg>
-                </div>
-            </div>
 
     <!-- App 容器 -->
     <div class="app-container">
@@ -179,15 +124,28 @@
             
             <!-- 用户信息区域 -->
             <div class="user-section" id="userSection">
-                <div class="user-avatar" id="userAvatar">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                    </svg>
+                <div class="user-info-container">
+                    <div class="user-avatar" id="userAvatar">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                    </div>
+                    <div class="user-info" id="userInfo">
+                        <span class="user-name">华仔</span>
+                        <span class="measure-time">2025/8/22 11:16</span>
+                    </div>
                 </div>
-                <div class="user-info" id="userInfo">
-                    <span class="user-name">华仔</span>
-                    <span class="measure-time">2025/8/22 11:16</span>
-                </div>
+                <button class="ai-analysis-btn" onclick="startAIAnalysis()">
+                    <div class="ai-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7v10c0 5.55 3.84 10 9 10s9-4.45 9-10V7l-10-5z"/>
+                            <path d="M8 11v6"/>
+                            <path d="M12 9v8"/>
+                            <path d="M16 13v4"/>
+                        </svg>
+                    </div>
+                    <span>AI智能分析</span>
+                </button>
             </div>
             
             <!-- 测量概览 -->
@@ -271,6 +229,38 @@
                                     <circle cx="260" cy="61" r="4" fill="#FF8E53"/>
                                 </svg>
                             </div>
+                            
+                            <!-- BMR状态条 -->
+                            <div class="status-bar-section">
+                                <div class="status-bar-container">
+                                    <div class="status-bar">
+                                        <div class="status-segments">
+                                            <div class="status-segment low" style="width: 30%"></div>
+                                            <div class="status-segment normal" style="width: 50%"></div>
+                                            <div class="status-segment high" style="width: 20%"></div>
+                                        </div>
+                                        <div class="status-indicator" style="left: 55%"></div>
+                                    </div>
+                                    <div class="status-labels">
+                                        <div class="status-label">
+                                            <span>偏低</span>
+                                            <span class="status-range">&lt; 1200kcal</span>
+                                        </div>
+                                        <div class="status-label active">
+                                            <span>标准</span>
+                                            <span class="status-range">1200-1800kcal</span>
+                                        </div>
+                                        <div class="status-label">
+                                            <span>偏高</span>
+                                            <span class="status-range">&gt; 1800kcal</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="current-status normal">
+                                    当前状态：标准
+                                </div>
+                            </div>
+                            
                             <div class="description">维持基本生理功能所需的最低能量。基础代谢率受年龄、性别、身高、体重等因素影响。</div>
                             <div class="health-advice">
                                 <strong>健康建议：</strong><br>
@@ -306,6 +296,38 @@
                                     <circle cx="260" cy="62" r="4" fill="#4ECDC4"/>
                                 </svg>
                             </div>
+                            
+                            <!-- 体脂率状态条 -->
+                            <div class="status-bar-section">
+                                <div class="status-bar-container">
+                                    <div class="status-bar">
+                                        <div class="status-segments">
+                                            <div class="status-segment low" style="width: 33.3%"></div>
+                                            <div class="status-segment normal" style="width: 33.3%"></div>
+                                            <div class="status-segment high" style="width: 33.4%"></div>
+                                        </div>
+                                        <div class="status-indicator" style="left: 45%"></div>
+                                    </div>
+                                    <div class="status-labels">
+                                        <div class="status-label">
+                                            <span>偏低</span>
+                                            <span class="status-range">&lt; 15%</span>
+                                        </div>
+                                        <div class="status-label active">
+                                            <span>标准</span>
+                                            <span class="status-range">15-25%</span>
+                                        </div>
+                                        <div class="status-label">
+                                            <span>偏高</span>
+                                            <span class="status-range">&gt; 25%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="current-status normal">
+                                    当前状态：标准
+                                </div>
+                            </div>
+                            
                             <div class="description">体脂率在理想范围，身材匀称健康。男性理想体脂率为10-20%，女性为16-25%。</div>
                             <div class="health-advice">
                                 <strong>健康建议：</strong><br>
@@ -411,6 +433,38 @@
                                     <circle cx="260" cy="56" r="4" fill="#4FACFE"/>
                                 </svg>
                             </div>
+                            
+                            <!-- 肌肉量状态条 -->
+                            <div class="status-bar-section">
+                                <div class="status-bar-container">
+                                    <div class="status-bar">
+                                        <div class="status-segments">
+                                            <div class="status-segment low" style="width: 25%"></div>
+                                            <div class="status-segment normal" style="width: 50%"></div>
+                                            <div class="status-segment high" style="width: 25%"></div>
+                                        </div>
+                                        <div class="status-indicator" style="left: 65%"></div>
+                                    </div>
+                                    <div class="status-labels">
+                                        <div class="status-label">
+                                            <span>偏低</span>
+                                            <span class="status-range">&lt; 20kg</span>
+                                        </div>
+                                        <div class="status-label active">
+                                            <span>标准</span>
+                                            <span class="status-range">20-35kg</span>
+                                        </div>
+                                        <div class="status-label">
+                                            <span>偏高</span>
+                                            <span class="status-range">&gt; 35kg</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="current-status normal">
+                                    当前状态：标准
+                                </div>
+                            </div>
+                            
                             <div class="description">肌肉质量充足，有助于维持健康体重和良好的身体功能。</div>
                             <div class="health-advice">
                                 <strong>健康建议：</strong><br>
@@ -1211,26 +1265,104 @@
                 }, 100);
             }
         }
-
-        // 实时更新iPhone状态栏时间
-        function updateStatusBarTime() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('en-US', { 
-                hour12: false, 
-                hour: 'numeric', 
-                minute: '2-digit' 
+        
+        // AI分析启动函数（带加载动画）
+        function startAIAnalysis() {
+            // 显示加载动画
+            const overlay = document.getElementById('aiLoadingOverlay');
+            overlay.classList.add('show');
+            
+            // 获取测量数据
+            const weight = document.querySelector('.overview-item .value').textContent;
+            const bmi = document.querySelectorAll('.overview-item .value')[1].textContent;
+            const userName = document.querySelector('.user-name').textContent;
+            const measureTime = document.querySelector('.measure-time').textContent;
+            
+            // 构建URL参数
+            const params = new URLSearchParams({
+                weight: weight,
+                bmi: bmi,
+                user: userName,
+                time: measureTime,
+                type: '8electrode'
             });
-            const timeElement = document.querySelector('.status-bar .time');
-            if (timeElement) {
-                timeElement.textContent = timeString;
-            }
+            
+            // 模拟AI分析步骤
+            simulateAIAnalysis(() => {
+                // 分析完成后跳转
+                window.location.href = `ai_analysis.html?${params.toString()}`;
+            });
         }
         
-        // 页面加载时立即更新时间
-        updateStatusBarTime();
+        // 模拟AI分析过程
+        function simulateAIAnalysis(callback) {
+            const steps = document.querySelectorAll('.loading-step');
+            let currentStep = 0;
+            
+            function activateStep(index) {
+                if (index < steps.length) {
+                    // 激活当前步骤
+                    steps[index].classList.add('active');
+                    const stepIcon = steps[index].querySelector('.step-icon');
+                    stepIcon.classList.add('active');
+                    
+                    // 完成前面的步骤
+                    for (let i = 0; i < index; i++) {
+                        steps[i].classList.remove('active');
+                        steps[i].classList.add('completed');
+                        steps[i].querySelector('.step-icon').classList.remove('active');
+                        steps[i].querySelector('.step-icon').classList.add('completed');
+                        steps[i].querySelector('.step-icon').innerHTML = '✓';
+                    }
+                }
+            }
+            
+            // 8电极设备分析时间稍长一些
+            const stepDuration = [1000, 1500, 1200, 1000];
+            let totalTime = 0;
+            
+            stepDuration.forEach((duration, index) => {
+                setTimeout(() => {
+                    activateStep(index);
+                    if (index === stepDuration.length - 1) {
+                        // 最后一步完成后稍等一下再跳转
+                        setTimeout(() => {
+                            // 完成最后一步
+                            steps[index].classList.remove('active');
+                            steps[index].classList.add('completed');
+                            steps[index].querySelector('.step-icon').classList.remove('active');
+                            steps[index].querySelector('.step-icon').classList.add('completed');
+                            steps[index].querySelector('.step-icon').innerHTML = '✓';
+                            
+                            // 执行回调（跳转页面）
+                            setTimeout(callback, 500);
+                        }, 600);
+                    }
+                }, totalTime);
+                totalTime += duration;
+            });
+        }
         
-        // 每分钟更新一次时间
-        setInterval(updateStatusBarTime, 60000);
+        // AI分析页面跳转函数（旧版本，保留作为备用）
+        function goToAIAnalysis() {
+            // 获取当前测量数据，传递给AI分析页面
+            const weight = document.querySelector('.overview-item .value').textContent;
+            const bmi = document.querySelectorAll('.overview-item .value')[1].textContent;
+            const userName = document.querySelector('.user-name').textContent;
+            const measureTime = document.querySelector('.measure-time').textContent;
+            
+            // 构建URL参数
+            const params = new URLSearchParams({
+                weight: weight,
+                bmi: bmi,
+                user: userName,
+                time: measureTime,
+                type: '8electrode' // 标识是8电极测量数据
+            });
+            
+            // 跳转到AI分析页面
+            window.location.href = `ai_analysis.html?${params.toString()}`;
+        }
         
         // 智能返回函数
         function goBack() {
@@ -1472,23 +1604,43 @@
             new TouchSimulator();
         }
 
-        // 更新状态栏时间
-        function updateStatusBarTime() {
-            const now = new Date();
-            const timeString = now.getHours().toString().padStart(2, '0') + ':' + 
-                             now.getMinutes().toString().padStart(2, '0');
-            const timeElement = document.querySelector('.status-bar .time');
-            if (timeElement) {
-                timeElement.textContent = timeString;
-            }
-        }
-
-        // 页面加载时立即更新时间
-        updateStatusBarTime();
-        
-        // 每分钟更新一次时间
-        setInterval(updateStatusBarTime, 60000);
     </script>
+        </div>
+    </div>
+
+    <!-- AI分析加载动画 -->
+    <div class="ai-loading-overlay" id="aiLoadingOverlay">
+        <div class="ai-loading-content">
+            <div class="ai-brain">
+                <div class="brain-scan">
+                    <div class="scan-lines">
+                        <div class="scan-line"></div>
+                        <div class="scan-line"></div>
+                        <div class="scan-line"></div>
+                        <div class="scan-line"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="ai-loading-text">AI正在分析中...</div>
+            <div class="ai-loading-subtitle">正在为您生成个性化健康报告</div>
+            <div class="loading-steps">
+                <div class="loading-step" data-step="1">
+                    <div class="step-icon">1</div>
+                    <span>采集身体数据</span>
+                </div>
+                <div class="loading-step" data-step="2">
+                    <div class="step-icon">2</div>
+                    <span>AI深度分析</span>
+                </div>
+                <div class="loading-step" data-step="3">
+                    <div class="step-icon">3</div>
+                    <span>生成健康评估</span>
+                </div>
+                <div class="loading-step" data-step="4">
+                    <div class="step-icon">4</div>
+                    <span>制定个性化建议</span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1641,8 +1793,270 @@
             padding: 24px;
             display: flex;
             justify-content: space-around;
+            align-items: center;
             margin-bottom: 20px;
             box-shadow: 0 8px 24px rgba(255, 107, 107, 0.3);
+        }
+
+        /* 重新设计的用户信息区域样式 */
+        .user-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .user-info-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .user-section .user-avatar {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+
+        .user-section .user-avatar svg {
+            width: 32px;
+            height: 32px;
+            color: white;
+        }
+
+        .user-section .user-info {
+            flex: 1;
+        }
+
+        .user-section .user-name {
+            font-size: 22px;
+            font-weight: 800;
+            color: #1D1D1F;
+            margin-bottom: 6px;
+        }
+
+        .user-section .measure-time {
+            font-size: 14px;
+            color: #8E8E93;
+            font-weight: 500;
+        }
+
+        .ai-analysis-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 16px;
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .ai-analysis-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .ai-analysis-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .ai-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ai-icon svg {
+            width: 18px;
+            height: 18px;
+            stroke: white;
+        }
+
+        /* AI分析加载动画 */
+        .ai-loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .ai-loading-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .ai-loading-content {
+            text-align: center;
+            color: white;
+            max-width: 300px;
+        }
+
+        .ai-brain {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            position: relative;
+        }
+
+        .brain-scan {
+            width: 100%;
+            height: 100%;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            position: relative;
+            animation: brainPulse 2s ease-in-out infinite;
+        }
+
+        .brain-scan::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: brainCore 1.5s ease-in-out infinite;
+        }
+
+        .scan-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .scan-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+            animation: scanMove 2s ease-in-out infinite;
+        }
+
+        .scan-line:nth-child(1) { top: 20%; animation-delay: 0s; }
+        .scan-line:nth-child(2) { top: 40%; animation-delay: 0.3s; }
+        .scan-line:nth-child(3) { top: 60%; animation-delay: 0.6s; }
+        .scan-line:nth-child(4) { top: 80%; animation-delay: 0.9s; }
+
+        .ai-loading-text {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            animation: textGlow 2s ease-in-out infinite;
+        }
+
+        .ai-loading-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 24px;
+        }
+
+        .loading-steps {
+            text-align: left;
+            font-size: 13px;
+        }
+
+        .loading-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            opacity: 0.5;
+            transform: translateX(-20px);
+            transition: all 0.5s ease;
+        }
+
+        .loading-step.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .loading-step.completed {
+            opacity: 0.8;
+        }
+
+        .step-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 12px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        .step-icon.active {
+            border-color: white;
+            background: white;
+            color: #667eea;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .step-icon.completed {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: rgba(255, 255, 255, 0.8);
+            color: #667eea;
+        }
+
+        @keyframes brainPulse {
+            0%, 100% { transform: scale(1); border-color: rgba(255, 255, 255, 0.3); }
+            50% { transform: scale(1.05); border-color: rgba(255, 255, 255, 0.6); }
+        }
+
+        @keyframes brainCore {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+            50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+        }
+
+        @keyframes scanMove {
+            0%, 100% { opacity: 0; transform: translateY(-10px); }
+            50% { opacity: 1; transform: translateY(10px); }
+        }
+
+        @keyframes textGlow {
+            0%, 100% { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            50% { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
 
         .overview-item {
@@ -1804,6 +2218,114 @@
             font-size: 12px;
             color: #333;
             line-height: 1.4;
+        }
+
+        /* 健康状态条样式 */
+        .status-bar-section {
+            margin: 16px 0;
+            padding: 16px;
+            background: #F8F9FA;
+            border-radius: 12px;
+        }
+
+        .status-bar-container {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        .status-bar {
+            height: 8px;
+            background: #E5E5EA;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-segments {
+            display: flex;
+            height: 100%;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .status-segment {
+            flex: 1;
+            position: relative;
+        }
+
+        .status-segment.low {
+            background: linear-gradient(90deg, #FF9500, #FFCC02);
+        }
+
+        .status-segment.normal {
+            background: linear-gradient(90deg, #32D74B, #30D158);
+        }
+
+        .status-segment.high {
+            background: linear-gradient(90deg, #FF6482, #FF3B30);
+        }
+
+        .status-indicator {
+            position: absolute;
+            top: -2px;
+            width: 12px;
+            height: 12px;
+            background: #007AFF;
+            border-radius: 50%;
+            border: 2px solid #FFFFFF;
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+
+        .status-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 11px;
+            color: #8E8E93;
+        }
+
+        .status-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .status-label.active {
+            color: #007AFF;
+            font-weight: 600;
+        }
+
+        .status-range {
+            font-size: 10px;
+            margin-top: 2px;
+            opacity: 0.8;
+        }
+
+        .current-status {
+            text-align: center;
+            margin-top: 12px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .current-status.low {
+            background: rgba(255, 149, 0, 0.15);
+            color: #FF9500;
+        }
+
+        .current-status.normal {
+            background: rgba(50, 215, 75, 0.15);
+            color: #30D158;
+        }
+
+        .current-status.high {
+            background: rgba(255, 59, 48, 0.15);
+            color: #FF3B30;
         }
 
         .data-item::before {
